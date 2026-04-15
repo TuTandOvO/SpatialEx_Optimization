@@ -1,0 +1,156 @@
+{
+  "0_baseline": {
+    "slice1": {
+      "PCC": 0.15517504513263702,
+      "SSIM": 0.37387388927629944,
+      "CMD": 0.27849639489086087,
+      "MoransI": 0.8849777720438631,
+      "SPCC": 0.10778892034655263
+    },
+    "slice2": {
+      "PCC": 0.15568344295024872,
+      "SSIM": 0.3756011728779495,
+      "CMD": 0.28640020511192743,
+      "MoransI": 0.8895439801581682,
+      "SPCC": 0.13680668636187412
+    },
+    "loss_config": null,
+    "description": "\u539f\u7248 MSE\uff08\u5bf9\u7167\u7ec4\uff09",
+    "time_seconds": 277.26102566719055
+  },
+  "1_cosine_only": {
+    "slice1": {
+      "PCC": 0.16911064088344574,
+      "SSIM": 0.3746458359691295,
+      "CMD": 0.2740179901377293,
+      "MoransI": 0.8882461236780851,
+      "SPCC": 0.11951454741754361
+    },
+    "slice2": {
+      "PCC": 0.15707367658615112,
+      "SSIM": 0.3727849976163047,
+      "CMD": 0.29326059033381446,
+      "MoransI": 0.8955147760398534,
+      "SPCC": 0.138156321457908
+    },
+    "loss_config": {
+      "alpha": 1.0,
+      "beta": 0.3,
+      "gamma": 0,
+      "delta": 0,
+      "use_gene_weights": false,
+      "rank_tau": 1.0,
+      "rank_max_genes": 300
+    },
+    "description": "MSE + Cosine Loss (beta=0.3) \u2192 \u76ee\u6807: \u63d0\u5347 PCC",
+    "time_seconds": 264.60288739204407
+  },
+  "2_wmse_only": {
+    "slice1": {
+      "PCC": 0.1666034311056137,
+      "SSIM": 0.37845933099815315,
+      "CMD": 0.2537828134977095,
+      "MoransI": 0.8875967509883725,
+      "SPCC": 0.11697501278730485
+    },
+    "slice2": {
+      "PCC": 0.15777374804019928,
+      "SSIM": 0.3676366425899179,
+      "CMD": 0.28814793248943826,
+      "MoransI": 0.8965372153072642,
+      "SPCC": 0.1371223653774295
+    },
+    "loss_config": {
+      "alpha": 1.0,
+      "beta": 0,
+      "gamma": 0,
+      "delta": 0,
+      "use_gene_weights": true,
+      "rank_tau": 1.0,
+      "rank_max_genes": 300
+    },
+    "description": "Weighted MSE (\u57fa\u56e0CV\u52a0\u6743) \u2192 \u76ee\u6807: \u63d0\u5347 CMD",
+    "time_seconds": 290.78414249420166
+  },
+  "3_smooth_only": {
+    "slice1": {
+      "PCC": 0.16760051250457764,
+      "SSIM": 0.3778788838956865,
+      "CMD": 0.26805716177097494,
+      "MoransI": 0.8885852789459151,
+      "SPCC": 0.11763030531627117
+    },
+    "slice2": {
+      "PCC": 0.13407272100448608,
+      "SSIM": 0.3646420199830828,
+      "CMD": 0.36657976892734523,
+      "MoransI": 0.8905505090482658,
+      "SPCC": 0.12087300998932399
+    },
+    "loss_config": {
+      "alpha": 1.0,
+      "beta": 0,
+      "gamma": 0,
+      "delta": 0.05,
+      "use_gene_weights": false,
+      "rank_tau": 1.0,
+      "rank_max_genes": 300
+    },
+    "description": "MSE + Spatial Smoothness (delta=0.05) \u2192 \u76ee\u6807: \u63d0\u5347 CMD",
+    "time_seconds": 296.1165337562561
+  },
+  "4_rank_only": {
+    "slice1": {
+      "PCC": 0.16896431148052216,
+      "SSIM": 0.3791269952984672,
+      "CMD": 0.2729206537763029,
+      "MoransI": 0.8895119331990765,
+      "SPCC": 0.11921315380046195
+    },
+    "slice2": {
+      "PCC": 0.15694278478622437,
+      "SSIM": 0.37399292891451735,
+      "CMD": 0.3030814292262426,
+      "MoransI": 0.8959394607740132,
+      "SPCC": 0.1369067445891259
+    },
+    "loss_config": {
+      "alpha": 1.0,
+      "beta": 0,
+      "gamma": 0.05,
+      "delta": 0,
+      "use_gene_weights": false,
+      "rank_tau": 1.0,
+      "rank_max_genes": 300
+    },
+    "description": "MSE + Soft Rank Loss (gamma=0.05) \u2192 \u76ee\u6807: \u63d0\u5347 SSIM",
+    "time_seconds": 289.0421476364136
+  },
+  "5_cosine_smooth": {
+    "slice1": {
+      "PCC": 0.16531583666801453,
+      "SSIM": 0.3779318503234117,
+      "CMD": 0.25491950997005497,
+      "MoransI": 0.8874410844564651,
+      "SPCC": 0.11612130763949725
+    },
+    "slice2": {
+      "PCC": 0.15418896079063416,
+      "SSIM": 0.3668327155021548,
+      "CMD": 0.3004143845763726,
+      "MoransI": 0.8971263870949638,
+      "SPCC": 0.1341136778604846
+    },
+    "loss_config": {
+      "alpha": 1.0,
+      "beta": 0.3,
+      "gamma": 0,
+      "delta": 0.05,
+      "use_gene_weights": true,
+      "rank_tau": 1.0,
+      "rank_max_genes": 300
+    },
+    "description": "MSE + Cosine + Smooth (\u6700\u6709\u5e0c\u671b\u7684\u7ec4\u5408)",
+    "time_seconds": 307.80323362350464
+  }
+}

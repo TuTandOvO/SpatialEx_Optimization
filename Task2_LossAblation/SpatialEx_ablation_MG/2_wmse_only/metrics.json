@@ -1,0 +1,27 @@
+{
+  "slice1": {
+    "PCC": 0.2511864900588989,
+    "SSIM": 0.36263359403022427,
+    "CMD": 0.20056624871894768,
+    "MoransI": 0.9154331386747154,
+    "SPCC": 0.23516559417315513
+  },
+  "slice2": {
+    "PCC": 0.2697325050830841,
+    "SSIM": 0.372874656420377,
+    "CMD": 0.21129850084394086,
+    "MoransI": 0.9133298744482108,
+    "SPCC": 0.2491594269670897
+  },
+  "loss_config": {
+    "alpha": 1.0,
+    "beta": 0,
+    "gamma": 0,
+    "delta": 0,
+    "use_gene_weights": true,
+    "rank_tau": 1.0,
+    "rank_max_genes": 300
+  },
+  "description": "Weighted MSE (\u57fa\u56e0CV\u52a0\u6743) \u2192 \u76ee\u6807: \u63d0\u5347 CMD",
+  "time_seconds": 781.6564564704895
+}

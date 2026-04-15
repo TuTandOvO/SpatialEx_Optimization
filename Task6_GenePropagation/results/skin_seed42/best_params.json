@@ -1,0 +1,11 @@
+{
+  "alpha": 0.1,
+  "coexpr_threshold": 0.3,
+  "n_iters": 5,
+  "ppi_weight": 0.3,
+  "coexpr_weight": 0.7,
+  "overall_pcc": 0.2232218235731125,
+  "mi_pcc": 0.44496041536331177,
+  "mu_pcc": 0.045079633593559265,
+  "mu_pcc_delta": 0.003013014793395996
+}

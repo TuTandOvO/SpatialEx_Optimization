@@ -1,0 +1,27 @@
+{
+  "slice1": {
+    "PCC": 0.16760051250457764,
+    "SSIM": 0.3778788838956865,
+    "CMD": 0.26805716177097494,
+    "MoransI": 0.8885852789459151,
+    "SPCC": 0.11763030531627117
+  },
+  "slice2": {
+    "PCC": 0.13407272100448608,
+    "SSIM": 0.3646420199830828,
+    "CMD": 0.36657976892734523,
+    "MoransI": 0.8905505090482658,
+    "SPCC": 0.12087300998932399
+  },
+  "loss_config": {
+    "alpha": 1.0,
+    "beta": 0,
+    "gamma": 0,
+    "delta": 0.05,
+    "use_gene_weights": false,
+    "rank_tau": 1.0,
+    "rank_max_genes": 300
+  },
+  "description": "MSE + Spatial Smoothness (delta=0.05) \u2192 \u76ee\u6807: \u63d0\u5347 CMD",
+  "time_seconds": 296.1165337562561
+}

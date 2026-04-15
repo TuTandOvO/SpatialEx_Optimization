@@ -1,0 +1,177 @@
+{
+  "dataset": "mg",
+  "seed": 42,
+  "model": {
+    "hidden": 64,
+    "n_layers": 2,
+    "n_params": 8641,
+    "lambda_mu": 3.0,
+    "lambda_mod": 1.5,
+    "coexpr_threshold": 0.3,
+    "ppi_weight": 0.5,
+    "epochs_trained": 200
+  },
+  "v0_baseline": {
+    "slice1": {
+      "PCC": 0.3133620023727417,
+      "SSIM": 0.3906435413407652,
+      "CMD": 0.24724349237618692,
+      "MoransI": 0.9022500062481363,
+      "SPCC": 0.2807208521148973
+    },
+    "slice2": {
+      "PCC": 0.3065846860408783,
+      "SSIM": 0.3881768935638808,
+      "CMD": 0.2906639643961989,
+      "MoransI": 0.9106597419768379,
+      "SPCC": 0.27964213870243615
+    }
+  },
+  "gnn_corrected": {
+    "slice1": {
+      "PCC": 0.31506529450416565,
+      "SSIM": 0.39242847972036166,
+      "CMD": 0.26238742660225345,
+      "MoransI": 0.9063500855067749,
+      "SPCC": 0.2834554196463705
+    },
+    "slice2": {
+      "PCC": 0.308188796043396,
+      "SSIM": 0.3894254289426605,
+      "CMD": 0.30498723868408895,
+      "MoransI": 0.9162693231278591,
+      "SPCC": 0.28070862290696313
+    }
+  },
+  "stratified_s1": {
+    "overall": {
+      "PCC": 0.31506529450416565,
+      "SSIM": 0.39242847972036166,
+      "SPCC": 0.2834554196463705,
+      "MoransI": 0.9063500855067749
+    },
+    "MI": {
+      "n": 104,
+      "PCC_mean": 0.549640953540802,
+      "PCC_median": 0.5272793173789978,
+      "dPCC_mean": 0.0,
+      "dPCC_wilcoxon_p": NaN,
+      "SSIM_mean": 0.3194777547906663,
+      "SSIM_median": 0.30472421141398637,
+      "dSSIM_mean": 0.0,
+      "dSSIM_wilcoxon_p": NaN,
+      "SPCC_mean": 0.4927138832394969,
+      "SPCC_median": 0.47105752263668554,
+      "dSPCC_mean": 0.0,
+      "dSPCC_wilcoxon_p": NaN,
+      "MoransI_mean": 0.9392869239950528,
+      "MoransI_median": 0.9477979124747802,
+      "dMoransI_mean": 0.0,
+      "dMoransI_wilcoxon_p": NaN
+    },
+    "MU": {
+      "n": 104,
+      "PCC_mean": 0.10612326115369797,
+      "PCC_median": 0.11378692835569382,
+      "dPCC_mean": 0.0024471734650433064,
+      "dPCC_wilcoxon_p": 5.8299927085948273e-08,
+      "SSIM_mean": 0.5282175407469935,
+      "SSIM_median": 0.5463422108987028,
+      "dSSIM_mean": 0.002695473532653726,
+      "dSSIM_wilcoxon_p": 0.003732940740494674,
+      "SPCC_mean": 0.09893284124036163,
+      "SPCC_median": 0.09846644478571133,
+      "dSPCC_mean": 0.005349668359184872,
+      "dSPCC_wilcoxon_p": 1.2891359855645163e-08,
+      "MoransI_mean": 0.8631871685150124,
+      "MoransI_median": 0.8753152473866108,
+      "dMoransI_mean": 0.010484764572448403,
+      "dMoransI_wilcoxon_p": 7.796612465812427e-10
+    },
+    "Moderate": {
+      "n": 105,
+      "PCC_mean": 0.28967568278312683,
+      "PCC_median": 0.28188106417655945,
+      "dPCC_mean": 0.0026534616481512785,
+      "dPCC_wilcoxon_p": 2.4801510645285214e-12,
+      "SSIM_mean": 0.33018860396720556,
+      "SSIM_median": 0.2740346548380508,
+      "dSSIM_mean": 0.002651013956359045,
+      "dSSIM_wilcoxon_p": 2.9732703672560527e-06,
+      "SPCC_mean": 0.25895511431817797,
+      "SPCC_median": 0.2543949112484235,
+      "dSPCC_mean": 0.002852896457103712,
+      "dSPCC_wilcoxon_p": 3.303674951953084e-09,
+      "MoransI_mean": 0.9164787727864172,
+      "MoransI_median": 0.9228745943113089,
+      "dMoransI_mean": 0.0018372313563741005,
+      "dMoransI_wilcoxon_p": 9.367913440453675e-10
+    }
+  },
+  "stratified_s2": {
+    "overall": {
+      "PCC": 0.308188796043396,
+      "SSIM": 0.3894254289426605,
+      "SPCC": 0.28070862290696313,
+      "MoransI": 0.9162693231278591
+    },
+    "MI": {
+      "n": 104,
+      "PCC_mean": 0.5449303984642029,
+      "PCC_median": 0.5173684358596802,
+      "dPCC_mean": 0.0,
+      "dPCC_wilcoxon_p": NaN,
+      "SSIM_mean": 0.297695033258844,
+      "SSIM_median": 0.27815086048045023,
+      "dSSIM_mean": 0.0,
+      "dSSIM_wilcoxon_p": NaN,
+      "SPCC_mean": 0.4962060371349962,
+      "SPCC_median": 0.47354260166323614,
+      "dSPCC_mean": 0.0,
+      "dSPCC_wilcoxon_p": NaN,
+      "MoransI_mean": 0.9411912673307652,
+      "MoransI_median": 0.9533830262288029,
+      "dMoransI_mean": 0.0,
+      "dMoransI_wilcoxon_p": NaN
+    },
+    "MU": {
+      "n": 104,
+      "PCC_mean": 0.10006249696016312,
+      "PCC_median": 0.10621622204780579,
+      "dPCC_mean": 0.003114042105153203,
+      "dPCC_wilcoxon_p": 4.3582098310575837e-05,
+      "SSIM_mean": 0.5404490793385893,
+      "SSIM_median": 0.5609130361618251,
+      "dSSIM_mean": 0.002047777257189366,
+      "dSSIM_wilcoxon_p": 0.15894950288718251,
+      "SPCC_mean": 0.09245488723006666,
+      "SPCC_median": 0.09535826128946864,
+      "dSPCC_mean": 0.0029012903627694225,
+      "dSPCC_wilcoxon_p": 0.0025410316678074907,
+      "MoransI_mean": 0.8823204020579042,
+      "MoransI_median": 0.8973740912634892,
+      "dMoransI_mean": 0.01450885049297491,
+      "dMoransI_wilcoxon_p": 3.6813454443936555e-10
+    },
+    "Moderate": {
+      "n": 105,
+      "PCC_mean": 0.2798459231853485,
+      "PCC_median": 0.2650173008441925,
+      "dPCC_mean": 0.0016973395831882954,
+      "dPCC_wilcoxon_p": 3.495156049037364e-08,
+      "SSIM_mean": 0.3306968718944733,
+      "SSIM_median": 0.2745021757699984,
+      "dSSIM_mean": 0.0016935498934320782,
+      "dSSIM_wilcoxon_p": 0.00236859776762349,
+      "SPCC_mean": 0.2537244079610754,
+      "SPCC_median": 0.24722880034220915,
+      "dSPCC_mean": 0.000305479602751577,
+      "dSPCC_wilcoxon_p": 0.00043007783686355297,
+      "MoransI_mean": 0.9252103287866508,
+      "MoransI_median": 0.9352870066109856,
+      "dMoransI_mean": 0.002351223323812242,
+      "dMoransI_wilcoxon_p": 2.4248988346752905e-12
+    }
+  },
+  "train_time_seconds": 312.00184202194214
+}

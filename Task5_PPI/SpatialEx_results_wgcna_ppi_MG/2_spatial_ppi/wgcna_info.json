@@ -1,0 +1,12 @@
+{
+  "slice1": {
+    "n_modules": 0,
+    "module_sizes": {},
+    "n_unassigned": 313
+  },
+  "slice2": {
+    "n_modules": 0,
+    "module_sizes": {},
+    "n_unassigned": 313
+  }
+}
