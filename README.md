@@ -161,6 +161,50 @@ Note: WGCNA co-expression priors were also tested but proved ineffective or harm
 
 ---
 
+## Future Directions
+
+### 1. ZINB Probabilistic Modeling for Stereo-seq Compatibility
+
+SpatialEx currently uses MSE regression, which implicitly assumes continuous Gaussian expression — acceptable for Xenium's small gene panels, but inappropriate for whole-transcriptome platforms like **Stereo-seq** that produce highly sparse, zero-inflated count data with overdispersion.
+
+**Proposed approach**: Replace the MSE prediction head with a ZINB (Zero-Inflated Negative Binomial) distribution head that predicts three parameters per gene: mean (μ), dispersion (θ), and zero-inflation probability (π). This naturally handles dropout events and the mean-variance relationship of count data. **Hist2ST** (Briefings in Bioinformatics, 2022) has validated the feasibility of GNN + ZINB in spatial transcriptomics prediction.
+
+> Note: Sarkar & Stephens (*Genome Biology*, 2022) showed that excess zeros in ST data often follow a natural NB distribution rather than requiring zero-inflation. Whether ZINB or plain NB is more appropriate should be empirically tested per platform.
+
+### 2. Causal PPI Modeling via Celcomen-Style Disentanglement
+
+The current PPI integration (Task 5) simply adds PPI edges to the spatial hypergraph — the model cannot distinguish between "spatially proximal" and "biologically interacting" signals.
+
+**Proposed approach**: Following [**Celcomen**](https://arxiv.org/abs/2409.05804) (ICLR 2025 / *Nature Communications*, 2026), decompose gene regulation into two causal channels:
+- **Inter-cellular communication** (CCE): driven by PPI / ligand-receptor interactions across neighboring cells
+- **Intra-cellular regulation** (SCE): intrinsic gene expression programs within each cell
+
+This enables the model to learn *why* a gene's expression changes — is it because of signaling from neighboring cells (PPI-mediated) or because of the cell's own morphological state? Treating PPI as an independent causal channel rather than mixing it with spatial edges should yield more interpretable and effective integration.
+
+### 3. Generative Prediction via Flow Matching
+
+SpatialEx performs point prediction (one H&E patch → one deterministic expression vector), but identical tissue morphology can correspond to different expression states — a fundamental one-to-many mapping. Point regression can only learn the conditional mean, which partly explains why MU genes collapse to spatial constants.
+
+**Proposed approach**: Replace point prediction with a generative framework based on flow matching. [**STFlow**](https://openreview.net/forum?id=Ossg1IbHDT) (ICML 2025 Spotlight) models the **joint distribution** of gene expression across the entire slide (not per-spot independently), uses local spatial attention for scalability, and incorporates a ZINB prior for biologically informed generation. [**Stem**](https://openreview.net/forum?id=FtjLUHyZAO) (ICLR 2025) similarly uses conditional DDPM to generate expression distributions from H&E, explicitly modeling stochasticity. This paradigm shift from regression to generation could capture expression variability that deterministic models fundamentally cannot.
+
+### 4. Gene-Adaptive Routing via Mixture-of-Experts
+
+Our core finding across Phases I-IV is that MI and MU genes require fundamentally different prediction strategies, yet SpatialEx uses a single shared predictor for all genes.
+
+**Proposed approach**: Following [**scGPT-spatial**](https://www.biorxiv.org/content/10.1101/2025.02.05.636714v1) (bioRxiv, 2025), implement a Mixture-of-Experts (MoE) decoder where a learned router assigns each gene to specialized expert networks:
+
+```
+HGNN output
+  → Learned Router (gene-adaptive gating)
+    → Expert 1: Morphology pathway (MI genes, relies on H&E features)
+    → Expert 2: Spatial context pathway (MU genes, relies on neighborhood/PPI)
+    → Expert 3: Hybrid pathway (MOD genes)
+```
+
+Unlike hard-coded stratification (e.g., Task 7's anchor loss), MoE lets the model **learn** which genes benefit from which pathway. This directly builds on our experimental conclusion that one-size-fits-all prediction is suboptimal.
+
+---
+
 ## References
 
 | # | Paper | Relevance |
@@ -173,6 +217,11 @@ Note: WGCNA co-expression priors were also tested but proved ineffective or harm
 | 6 | Li, Y. et al. "TISSUE: uncertainty-calibrated prediction of single-cell spatial transcriptomics improves downstream analyses." *Nature Methods* (2024). [[paper]](https://www.nature.com/articles/s41592-024-02084-1) | Uncertainty quantification (Task 8) |
 | 7 | Liu, Y. et al. "SPRITE: improving spatial gene expression imputation with gene and cell networks." *Bioinformatics* (2024). [[paper]](https://academic.oup.com/bioinformatics/article/40/Supplement_1/i482/7700862) | Gene propagation inspiration (Tasks 6-7) |
 | 8 | Hendrycks, D. & Gimpel, K. "Gaussian Error Linear Units (GELUs)." *arXiv* (2016). | Activation function (Task 3) |
+| 9 | Megas, S. et al. "Celcomen: a generative model for disentangling intra- and inter-cellular gene regulation." *ICLR* (2025) / *Nature Communications* (2026). [[paper]](https://arxiv.org/abs/2409.05804) | Causal PPI modeling (Future Direction 2) |
+| 10 | Zeng, Z. et al. "STFlow: scalable generation of spatial transcriptomics via whole-slide flow matching." *ICML* (2025, Spotlight). [[paper]](https://openreview.net/forum?id=Ossg1IbHDT) | Generative prediction (Future Direction 3) |
+| 11 | Bao, F. et al. "Stem: diffusion generative modeling for spatial gene expression inference." *ICLR* (2025). [[paper]](https://openreview.net/forum?id=FtjLUHyZAO) | Diffusion-based prediction (Future Direction 3) |
+| 12 | Cui, H. et al. "scGPT-spatial: continual pretraining for spatial transcriptomics." *bioRxiv* (2025). [[paper]](https://www.biorxiv.org/content/10.1101/2025.02.05.636714v1) | MoE gene routing (Future Direction 4) |
+| 13 | Zeng, Y. et al. "Hist2ST: whole-slide image based spatial transcriptomics prediction." *Briefings in Bioinformatics* (2022). | GNN + ZINB framework (Future Direction 1) |
 
 ---
 
