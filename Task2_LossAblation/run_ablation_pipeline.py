@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
 """
-SpatialEx 消融实验 (HPC) — 自包含脚本
-==========================================
-预处理只跑一次，然后自动跑所有消融变体，最后输出对比表格。
-
-用法:
-    python run_ablation_pipeline.py
-
-每个变体约 30-60 min（500 epochs），4个变体 + baseline 共 5 轮训练。
-全部跑完大约 2.5-5 小时。
+SpatialEx loss ablation: cosine, weighted MSE, spatial-smoothness, soft-rank.
+Preprocessing runs once; each variant trains for 500 epochs (≈30-60 min).
 """
 
 import numpy as np
@@ -36,9 +29,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 
-# =============================================
 # Moran's I & SPCC 评估工具
-# =============================================
 
 def compute_morans_i_pred(true_expr, pred_expr, spatial_coords, k=7):
     """对预测表达计算 per-gene Moran's I。"""
@@ -84,9 +75,7 @@ def compute_spcc(true_expr, pred_expr):
         spcc[g] = rho if not np.isnan(rho) else 0.0
     return spcc, float(np.nanmean(spcc))
 
-# =============================================
 # 配置
-# =============================================
 device = 'cuda:1'
 save_root1 = '/gpfsdata/home/renyixiang/YuanLab/data/MG_Xenium/Sample1_Rep1/Human_Breast_Cancer_Rep1/'
 save_root2 = '/gpfsdata/home/renyixiang/YuanLab/data/MG_Xenium/Sample1_Rep2/Human_Breast_Cancer_Rep2/'
@@ -103,9 +92,7 @@ skin_root = '/gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/Human_Skin_Melan
 skin_output_root = '/gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/SpatialEx_ablation/'
 os.makedirs(skin_output_root, exist_ok=True)
 
-# =============================================
 # 消融实验定义
-# =============================================
 # 每个变体只改一个东西，其他保持原版 MSE
 ABLATION_VARIANTS = {
     # 名称: (描述, loss_config)
@@ -190,9 +177,7 @@ def preprocess_skin_data():
     return adata1, adata2, g1, g2
 
 
-# =============================================
 # Composite Loss 实现（与 run_improved_pipeline.py 相同）
-# =============================================
 
 def compute_gene_cv_weights(expression, eps=1e-8):
     if hasattr(expression, 'toarray'):
@@ -373,9 +358,7 @@ class ImprovedSpatialEx(SpatialEx):
             kwargs.get("optimizer", "adam"), self.models, self.lr, self.weight_decay)
 
 
-# =============================================
 # 评估函数
-# =============================================
 def evaluate(adata1, adata2, panelB1, panelA2):
     """返回 dict: {slice1: {PCC, SSIM, CMD, MoransI, SPCC}, slice2: {...}}"""
     results = {}
@@ -415,9 +398,7 @@ def evaluate(adata1, adata2, panelB1, panelA2):
     return results
 
 
-# =============================================
 # 1. 预处理（只跑一次！）
-# =============================================
 print("=" * 70)
 print("STAGE 1: PREPROCESSING (only once for all ablation variants)")
 print("=" * 70)
@@ -463,9 +444,7 @@ print("[OK] Graphs built")
 print("Preprocessing complete!\n")
 
 
-# =============================================
 # 2. 跑所有消融变体
-# =============================================
 all_results = {}
 
 for variant_name, (description, loss_config) in ABLATION_VARIANTS.items():
@@ -552,9 +531,7 @@ for variant_name, (description, loss_config) in ABLATION_VARIANTS.items():
     gc.collect()
 
 
-# =============================================
 # 3. 汇总对比表
-# =============================================
 print("\n\n" + "=" * 100)
 print("ABLATION RESULTS SUMMARY")
 print("=" * 100)
@@ -612,9 +589,7 @@ if bl_s1:
               f"{d_ssim1:>+8.4f}{arrow(d_ssim1)} {d_ssim2:>+8.4f}{arrow(d_ssim2)} "
               f"{d_cmd1:>+8.4f}{arrow(d_cmd1, False)} {d_cmd2:>+8.4f}{arrow(d_cmd2, False)}")
 
-# =============================================
 # 4. Wilcoxon 显著性检验（每个变体 vs baseline）
-# =============================================
 print("\n\n" + "=" * 100)
 print("STATISTICAL SIGNIFICANCE (Wilcoxon signed-rank, two-sided)")
 print("=" * 100)
@@ -678,9 +653,7 @@ print("ABLATION COMPLETE!")
 print("=" * 70)
 
 
-# =============================================
 # PHASE 2: Skin Melanoma Dataset（空间切分）
-# =============================================
 print("\n\n" + "#" * 70)
 print("# PHASE 2: SKIN MELANOMA DATASET (spatial split)")
 print("#" * 70)

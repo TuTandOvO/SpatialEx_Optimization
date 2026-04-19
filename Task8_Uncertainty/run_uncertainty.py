@@ -1,35 +1,13 @@
 #!/usr/bin/env python3
 """
-Task 9 — TISSUE-style Uncertainty Quantification for SpatialEx
-==============================================================
-After exhaustive exploration (Task7 loss reweighting, Task8a linear propagation,
-Task8b GCN correction, Task8c cell-cell smoothing), all post-hoc methods yielded
-negligible absolute improvement on MU genes (dPCC < 0.004).
+TISSUE-style uncertainty quantification on SpatialEx predictions.
+Computes Cell-Centric Variability (CCV) and split-conformal intervals
+(per-slice and cross-slice) stratified by MI / MOD / MU tier.
 
-This script takes a different stance: instead of trying to improve MU gene
-predictions, we **quantify which predictions are trustworthy**.
+Neighbor weights are built from H&E feature cosine similarity rather than
+ground-truth expression, so this runs at inference time without labels.
 
-Method (adapted from TISSUE, Nature Methods 2024):
-  1. Cell-Centric Variability (CCV): for each (cell, gene), measure how much
-     the prediction deviates from spatially adjacent cells of similar morphology.
-  2. Conformal Prediction Intervals: calibrate uncertainty intervals using
-     measured genes, providing coverage guarantees.
-  3. Gene Reliability Index: per-gene aggregate of prediction interval widths.
-     Genes with wide intervals are "unreliable" — predominantly MU genes.
-
-Key innovation vs original TISSUE:
-  - TISSUE needs ground truth expression for neighbor weighting.
-  - We use H&E feature cosine similarity — fully inference-time applicable.
-
-Output:
-  - Per-gene reliability score (narrow intervals = reliable)
-  - MI/MU/MOD stratified uncertainty analysis
-  - Visualization-ready CSVs
-
-Usage on HPC:
-    cd /gpfsdata/home/renyixiang/YuanLab
-    python Task9_uncertainty/run_uncertainty.py --dataset mg --seed 42
-    python Task9_uncertainty/run_uncertainty.py --dataset skin --seed 42
+    python run_uncertainty.py --dataset {mg,skin} --seed 42
 """
 
 import argparse
@@ -52,12 +30,10 @@ HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parent
 
 
-# =============================================
 # A. Data loaders (reused)
-# =============================================
 
 def load_task6_lib():
-    script = PROJECT_ROOT / "Task6_wgcnaPPI" / "run_wgcna_ppi_pipeline.py"
+    script = PROJECT_ROOT / "Task5_PPI" / "run_wgcna_ppi_pipeline.py"
     source = script.read_text(encoding="utf-8")
     marker = "# 1. 数据读取与预处理"
     assert marker in source, f"Marker not found in {script}"
@@ -131,9 +107,7 @@ def build_masks_from_pcc(pcc_s1, pcc_s2):
     return mi, mu, mod, mean_pcc
 
 
-# =============================================
 # B. Spatial neighbor graph
-# =============================================
 
 def build_spatial_knn(coords, k=20):
     """Build spatial k-NN: returns (indices, distances)."""
@@ -142,9 +116,7 @@ def build_spatial_knn(coords, k=20):
     return indices[:, 1:], dists[:, 1:]  # exclude self
 
 
-# =============================================
 # C. Cell-Centric Variability (CCV)
-# =============================================
 
 def compute_ccv(pred, nbr_indices, he_features=None, use_he_weights=True):
     """Compute Cell-Centric Variability for each (cell, gene).
@@ -212,9 +184,7 @@ def compute_ccv(pred, nbr_indices, he_features=None, use_he_weights=True):
     return ccv.astype(np.float32)
 
 
-# =============================================
 # D. Conformal Prediction Intervals
-# =============================================
 
 def compute_conformal_intervals(pred, gt, ccv, alpha=0.33):
     """Compute conformal prediction intervals.
@@ -276,9 +246,7 @@ def compute_conformal_intervals(pred, gt, ccv, alpha=0.33):
     return qhat.astype(np.float32), interval_widths.astype(np.float32), coverage.astype(np.float32)
 
 
-# =============================================
 # E. Gene Reliability Index
-# =============================================
 
 def compute_gene_reliability(interval_widths, pred, gt, mi_mask, mu_mask, mod_mask):
     """Compute per-gene reliability metrics.
@@ -325,9 +293,7 @@ def _per_gene_pcc(pred, target, eps=1e-8):
     return np.nan_to_num(num / denom)
 
 
-# =============================================
 # F. Cross-slice Validation
-# =============================================
 
 def cross_slice_conformal(pred_calib, gt_calib, ccv_calib,
                           pred_test, ccv_test, gt_test,
@@ -367,9 +333,7 @@ def cross_slice_conformal(pred_calib, gt_calib, ccv_calib,
     return qhat.astype(np.float32), test_widths.astype(np.float32), test_coverage.astype(np.float32)
 
 
-# =============================================
 # G. Main
-# =============================================
 
 def main():
     parser = argparse.ArgumentParser(description="Task9 TISSUE-style uncertainty")

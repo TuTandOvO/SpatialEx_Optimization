@@ -1,35 +1,7 @@
 #!/usr/bin/env python3
 """
-SpatialEx — GELU Activation Pipeline (HPC)
-============================================
-改进点：将预测头中的 LeakyReLU 激活函数替换为 GELU（Gaussian Error Linear Unit）。
-
-**动机**：
-  原版 SpatialEx 的预测头（Predictor_spot）使用 LeakyReLU(0.1)：
-    - MLP 层后：nn.LeakyReLU(0.1)
-    - 最终输出：F.leaky_relu(self.linear(F.leaky_relu(enc)))
-
-  GELU 是 BERT、ViT、GPT 等 Transformer 模型中广泛使用的激活函数，具有：
-    - 平滑梯度（处处可微，避免 LeakyReLU 的"折点"梯度不连续）
-    - 隐式正则化效果（通过高斯 CDF 门控，接近零的激活被随机抑制）
-    - 与 UNI ViT 特征的兼容性更好（UNI 内部也使用 GELU）
-
-  对于从 UNI ViT 提取的 1024 维特征，使用 GELU 可能减少训练初期的激活偏移，
-  尤其是 BatchNorm 之后，因为 GELU 在 0 附近更平滑的梯度有助于稳定训练。
-
-**实现策略**：
-  1. 修改 MLP 中的 LeakyReLU → GELU
-  2. 修改最终输出层的 F.leaky_relu → F.gelu
-  3. HGNN 内部激活由 'prelu' 改为 'gelu'（需要 patch create_activation）
-  4. DGI 保持原版不变（DGI 内部使用 PReLU，已经是参数化激活，保持稳定）
-
-**预期提升**：
-  - 更平滑的梯度流 → 在 BatchNorm 之后表现更稳定
-  - 与 UNI 特征分布更兼容（UNI 内部 GELU）→ 可能减少训练初期损失震荡
-  - GELU 的随机 dropout 特性 → 轻微正则化效果 → 改善泛化
-
-用法：
-    python run_gelu_activation_pipeline.py
+Swap LeakyReLU → GELU in the predictor head + HGNN.
+Also tries SiLU and Mish as alternatives. Baseline (LeakyReLU) re-trained for fair comparison.
 """
 
 import os
@@ -54,9 +26,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 
-# =============================================
 # Moran's I & SPCC 评估工具
-# =============================================
 
 def compute_morans_i_pred(true_expr, pred_expr, spatial_coords, k=7):
     """对预测表达计算 per-gene Moran's I。"""
@@ -101,9 +71,7 @@ def compute_spcc(true_expr, pred_expr):
         spcc[g] = rho if not np.isnan(rho) else 0.0
     return spcc, float(np.nanmean(spcc))
 
-# =============================================
 # 配置
-# =============================================
 device = 'cuda:1'
 save_root1 = '/gpfsdata/home/renyixiang/YuanLab/data/MG_Xenium/Sample1_Rep1/Human_Breast_Cancer_Rep1/'
 save_root2 = '/gpfsdata/home/renyixiang/YuanLab/data/MG_Xenium/Sample1_Rep2/Human_Breast_Cancer_Rep2/'
@@ -178,9 +146,7 @@ def preprocess_skin_data():
 ACTIVATION_TYPE = 'gelu'
 
 
-# =============================================
 # Patch：向 SpatialEx 的 create_activation 添加 GELU/SiLU/Mish 支持
-# =============================================
 # 注意：SpatialEx 的 create_activation 只支持 relu/elu/leaky_relu/prelu，
 # 这里我们 monkeypatch 以支持 gelu/silu/mish。
 
@@ -212,9 +178,7 @@ _se_model.create_activation = _patched_create_activation
 logger.info("Patched create_activation to support GELU/SiLU/Mish")
 
 
-# =============================================
 # GELU HGNN（直接使用 patch 后的 HGNN，传入 activation='gelu'）
-# =============================================
 
 class GELUPredictor_spot(nn.Module):
     """预测头：使用 GELU 替代所有 LeakyReLU 激活函数。
@@ -349,9 +313,7 @@ class GELUSpatialEx(SpatialEx):
         logger.info("GELUSpatialEx initialized | activation=%s", activation_type)
 
 
-# =============================================
 # 消融：激活函数对比（可选，设为 False 可只跑主实验）
-# =============================================
 RUN_ABLATION = True  # 是否对比多种激活函数
 
 ACTIVATION_VARIANTS = {
@@ -427,9 +389,7 @@ def evaluate(adata1, adata2, panelB1, panelA2):
     return results
 
 
-# =============================================
 # 1. 数据读取与预处理
-# =============================================
 print("=" * 60)
 print("Stage 1: Preprocessing Slice 1")
 print("=" * 60)
@@ -479,9 +439,7 @@ graph2 = se.pp.Build_hypergraph_spatial_and_HE(
     adata2, num_neighbors, graph_kind='spatial', return_type='csr'
 )
 
-# =============================================
 # 2. 主实验：GELU 激活
-# =============================================
 if not RUN_ABLATION:
     print("=" * 60)
     print(f"Stage 3: Training with {ACTIVATION_TYPE.upper()} activation")
@@ -528,9 +486,7 @@ if not RUN_ABLATION:
     with open(os.path.join(output_dir, 'metrics_summary.json'), 'w') as f:
         json.dump(metrics, f, indent=2)
 
-# =============================================
 # 3. 消融：多种激活函数对比
-# =============================================
 else:
     print("=" * 60)
     print("Stage 3: Activation Function Ablation Study")
@@ -665,9 +621,7 @@ print("DONE — GELU Activation Pipeline Complete!")
 print("=" * 60)
 
 
-# =============================================
 # PHASE 2: Skin Melanoma Dataset（空间切分）
-# =============================================
 print("\n\n" + "#" * 70)
 print("# PHASE 2: SKIN MELANOMA DATASET (spatial split)")
 print("#" * 70)

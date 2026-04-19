@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 """
-Stratified Gene Analysis: Morphology-Informative vs Uninformative
-=================================================================
-目标：
-  1. 根据 baseline PCC 将基因分为 morph-informative / moderate / uninformative 三组
-  2. 分析 PPI+WGCNA (v1) 对各组基因的改善是否有偏好性
-  3. 验证 Prof Yuan 的假设：PPI 是否将 morph-informative 基因的信息
-     传递给 morph-uninformative 基因
+Stratify genes by baseline PCC into Informative / Moderate / Uninformative tiers
+and report whether the PPI-augmented hypergraph improves them differently.
 
-输入：figures/ 下的 per-gene metrics CSV（baseline vs 3_all_three PPI）
-输出：分层统计表 + 可视化 + CSV 导出
+Reads per-gene metrics CSVs in figures/, writes stratified tables back there.
 """
 
 import os
@@ -17,9 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as scipy_stats
 
-# =============================================
 # 配置
-# =============================================
 FIG_DIR = os.path.join(os.path.dirname(__file__), 'figures')
 
 DATASETS = {
@@ -183,9 +175,7 @@ def format_significance(p):
         return f'{p:.4f} n.s.'
 
 
-# =============================================
 # MAIN
-# =============================================
 def main():
     all_stratified_results = {}
 

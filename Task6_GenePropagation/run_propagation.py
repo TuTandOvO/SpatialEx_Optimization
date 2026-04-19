@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
 """
-Task 8 — MI→MU Directed Gene Graph Propagation
-================================================
-Post-hoc correction of SpatialEx predictions: propagate well-predicted MI
-gene signals to poorly-predicted MU genes via an asymmetric PPI + co-expression
-gene-gene graph.
+Linear propagation of MI gene signal into MU gene predictions, on a directed
+gene-gene graph (PPI + Spearman co-expression). Operates post-hoc on the
+trained Task 5 outputs; no retraining.
 
-No retraining — operates purely on V0 baseline predictions from Task7.
+    python run_propagation.py --dataset {mg,skin} --seed 42
 
-Usage on HPC:
-    cd /gpfsdata/home/renyixiang/YuanLab
-    python Task8_genePropagate/run_propagation.py --dataset mg --seed 42
-    python Task8_genePropagate/run_propagation.py --dataset skin --seed 42
-
-Key novelties vs SPRITE (Bioinformatics 2024):
-    1. Asymmetric adjacency: MI→MU directed, MU→MI blocked
-    2. Dual-source gene graph: PPI + Spearman co-expression (SPRITE uses Spearman only)
-    3. No scRNA-seq reference required (self-contained)
+Caveat: hyperparameters (alpha, ppi_weight, coexpr_weight, threshold) are
+grid-searched and the best combo is selected by overall PCC on the same slices
+used for evaluation, so the deltas should be read as an upper bound.
 """
 
 import argparse
@@ -38,13 +30,11 @@ logger = logging.getLogger("task8")
 HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parent
 
-# =============================================
 # A. Task6 dynamic library loader (from Task7)
-# =============================================
 
 def load_task6_lib():
     """Exec the library portion of Task6's pipeline (funcs + classes only)."""
-    script = PROJECT_ROOT / "Task6_wgcnaPPI" / "run_wgcna_ppi_pipeline.py"
+    script = PROJECT_ROOT / "Task5_PPI" / "run_wgcna_ppi_pipeline.py"
     source = script.read_text(encoding="utf-8")
     marker = "# 1. 数据读取与预处理"
     assert marker in source, f"Marker not found in {script}"
@@ -65,9 +55,7 @@ def load_task6_lib():
     return ns
 
 
-# =============================================
 # B. Data loading helpers
-# =============================================
 
 def preprocess_mg(t6):
     se = t6["se"]
@@ -124,9 +112,7 @@ def load_v0_baseline(v0_dir):
     return data
 
 
-# =============================================
 # C. Gene mask classification
-# =============================================
 
 def build_masks_from_pcc(pcc_s1, pcc_s2):
     """Classify genes into MI/MU/Moderate by tercile on mean baseline PCC."""
@@ -141,9 +127,7 @@ def build_masks_from_pcc(pcc_s1, pcc_s2):
     return mi, mu, mod, mean_pcc
 
 
-# =============================================
 # D. Gene-gene graph construction (CORE NOVELTY)
-# =============================================
 
 def load_ppi(ppi_dir, var_names):
     """Load HumanBase PPI matrix, reindex to var_names order."""
@@ -255,9 +239,7 @@ def build_asymmetric_graph(
     return A.astype(np.float32)
 
 
-# =============================================
 # E. Iterative label propagation
-# =============================================
 
 def propagate(E0, A_asym, alpha=0.5, n_iters=10, tol=1e-6):
     """Iterative label propagation on the gene axis.
@@ -293,9 +275,7 @@ def propagate(E0, A_asym, alpha=0.5, n_iters=10, tol=1e-6):
     return E.astype(np.float32)
 
 
-# =============================================
 # F. Per-gene metrics & stratified report
-# =============================================
 
 def per_gene_pcc_np(pred, target, eps=1e-8):
     p = pred - pred.mean(axis=0, keepdims=True)
@@ -357,9 +337,7 @@ def print_report(rep, label):
         logger.info("".join(parts))
 
 
-# =============================================
 # G. Grid search
-# =============================================
 
 GRID = {
     "alpha":            [0.1, 0.3, 0.5, 0.7, 0.9],
@@ -428,9 +406,7 @@ def grid_search(E0, gt, ppi, coexpr, mi, mu, mod, baseline_pcc):
     return best_params, results
 
 
-# =============================================
 # H. Main
-# =============================================
 
 def main():
     parser = argparse.ArgumentParser(description="Task8 MI→MU Gene Graph Propagation")

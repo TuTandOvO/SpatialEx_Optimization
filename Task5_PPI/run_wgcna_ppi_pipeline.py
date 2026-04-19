@@ -1,46 +1,11 @@
 #!/usr/bin/env python3
 """
-SpatialEx — WGCNA + Tissue-Specific PPI Hypergraph Pipeline (HPC)
-==================================================================
-改进点：在构建超图时，不仅考虑空间距离（原版），还融合基因共表达模块信息
-（WGCNA-like）和组织特异性 PPI 先验（HumanBase mammary gland/Skin network）。
+Multi-source hypergraph for SpatialEx:
+  H_combined = α · H_spatial + β · H_coexpr(WGCNA) + γ · H_ppi(HumanBase)
 
-**动机**：
-  原版 SpatialEx 的超图仅基于空间 k-NN，隐含假设"空间近邻 = 功能相关"。
-  但在异质性组织（如乳腺癌）中：
-    1. 空间相邻的细胞可能属于不同克隆/细胞类型（空间距离 ≠ 功能距离）
-    2. 共调控基因模块的信息未被利用（同一 pathway 的 TF-target 基因对）
-    3. 组织特异性 PPI 提供了先验生物学知识（哪些基因在该组织中功能关联）
-
-**三层超图融合**：
-  Layer 1 — Spatial k-NN（原版）：
-    cell_i → {k 个空间最近邻}
-  Layer 2 — WGCNA co-expression module（新增）：
-    - G×G 基因相关矩阵 → soft thresholding → TOM → 层次聚类 → 模块
-    - 每个模块的 eigengene 为模块内基因的第一主成分
-    - 在 module eigengene 空间中做 k-NN → co-expression hyperedges
-  Layer 3 — PPI-informed（新增）：
-    - HumanBase mammary gland 的 gene-gene 功能关联权重 [G×G]
-    - 用 PPI 权重加权基因表达，计算 PPI-weighted cell similarity
-    - 在 PPI-weighted 表达空间中做 k-NN → PPI hyperedges
-
-  最终：H_combined = α · H_spatial + β · H_coexpr + γ · H_ppi
-
-**预期提升**：
-  - 共表达模块信息使超图边更具功能一致性 → PCC↑（尤其对标志基因）
-  - PPI 先验减少噪声邻居连接 → SSIM↑, CMD↓
-  - 三层融合比任一单源更鲁棒
-
-用法：
-  # 前置：先运行 download_ppi_network.py 下载 PPI 数据
-  python download_ppi_network.py --xenium-h5 ... --obs-csv ... --output-dir ./ppi_data/
-
-  # 然后运行本脚本
-  python run_wgcna_ppi_pipeline.py
-
-依赖：
-  - SpatialEx, torch, numpy, scipy, sklearn
-  - PPI 数据文件（ppi_matrix.npy, ppi_gene_names.npy）
+Run download_ppi_network.py first to fetch the tissue-specific PPI matrix.
+Empirical: PPI is the only source that helps; WGCNA was neutral-to-harmful
+and added nothing on top of PPI.
 """
 
 import os
@@ -72,9 +37,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 
-# =============================================
 # Moran's I & SPCC 评估工具
-# =============================================
 
 def compute_morans_i_pred(true_expr, pred_expr, spatial_coords, k=7):
     """对预测表达计算 per-gene Moran's I。"""
@@ -119,9 +82,7 @@ def compute_spcc(true_expr, pred_expr):
         spcc[g] = rho if not np.isnan(rho) else 0.0
     return spcc, float(np.nanmean(spcc))
 
-# =============================================
 # 配置
-# =============================================
 device = 'cuda:1'
 save_root1 = '/gpfsdata/home/renyixiang/YuanLab/data/MG_Xenium/Sample1_Rep1/Human_Breast_Cancer_Rep1/'
 save_root2 = '/gpfsdata/home/renyixiang/YuanLab/data/MG_Xenium/Sample1_Rep2/Human_Breast_Cancer_Rep2/'
@@ -162,9 +123,7 @@ PPI_THRESHOLD = 0.1   # PPI 权重阈值（低于此值忽略）
 PPI_K = 7             # PPI-weighted 空间 k-NN 的 k
 
 
-# =============================================
 # A. WGCNA-Lite: 基因共表达模块检测
-# =============================================
 
 def compute_soft_adjacency(expression: np.ndarray, power: int = 6) -> np.ndarray:
     """计算 WGCNA-style soft adjacency matrix。
@@ -327,9 +286,7 @@ def detect_modules(
     return module_labels, module_eigengenes, info
 
 
-# =============================================
 # B. 多源超图构建
-# =============================================
 
 def build_knn_graph(features: np.ndarray, k: int = 7,
                      weighted: str = 'binary') -> sp.csr_matrix:
@@ -505,9 +462,7 @@ def build_multi_source_hypergraph(
     return H_combined.tocsr()
 
 
-# =============================================
 # C. MultiSourceSpatialEx Trainer
-# =============================================
 
 class MultiSourceSpatialEx(SpatialEx):
     """使用多源超图（spatial + co-expression + PPI）的 SpatialEx。
@@ -596,9 +551,7 @@ class MultiSourceSpatialEx(SpatialEx):
                      alpha, beta, gamma)
 
 
-# =============================================
 # 评估函数
-# =============================================
 
 def evaluate(adata1, adata2, panelB1, panelA2):
     """计算两个 slice 的 PCC/SSIM/CMD/MoransI/SPCC 指标。"""
@@ -697,9 +650,7 @@ def preprocess_skin_data():
     return adata1, adata2, g1, g2
 
 
-# =============================================
 # 1. 数据读取与预处理
-# =============================================
 print("=" * 70)
 print("TASK 6: WGCNA + Tissue-Specific PPI Hypergraph")
 print("=" * 70)
@@ -740,9 +691,7 @@ adata2 = se.pp.Extract_HE_patches_representaion(
 del he_patches, img
 print(f'[OK] Slice 2: {adata2.shape}')
 
-# =============================================
 # 2. 加载 PPI 数据
-# =============================================
 print("\nStage 3: Loading PPI data")
 
 ppi_matrix = None
@@ -782,9 +731,7 @@ else:
     logger.warning("Running WITHOUT PPI layer. Run download_ppi_network.py first.")
     logger.warning("Will still use spatial + WGCNA co-expression layers.")
 
-# =============================================
 # 3. 建图 + 训练
-# =============================================
 print("\nStage 4: Building spatial graphs (baseline)")
 graph1 = se.pp.Build_hypergraph_spatial_and_HE(
     adata1, num_neighbors, graph_kind='spatial', return_type='csr'
@@ -908,9 +855,7 @@ for config_name, config in ABLATION_CONFIGS.items():
     torch.cuda.empty_cache()
     gc.collect()
 
-# =============================================
 # 4. 汇总
-# =============================================
 print("\n\n" + "=" * 100)
 print("WGCNA + PPI HYPERGRAPH ABLATION SUMMARY")
 print("=" * 100)
@@ -1007,9 +952,7 @@ print("Breast Cancer DONE!")
 print("=" * 70)
 
 
-# =============================================
 # PHASE 2: Skin Melanoma Dataset（完整消融，与 MG 一致）
-# =============================================
 print("\n\n" + "#" * 70)
 print("# PHASE 2: SKIN MELANOMA DATASET (spatial split, full ablation)")
 print("#" * 70)

@@ -1,26 +1,10 @@
 #!/usr/bin/env python3
 """
-Task 8b — Lightweight GNN for MI→MU Gene Correction
-====================================================
-Train a small GCN on the gene-gene graph (PPI + co-expression) to learn
-non-linear corrections that transfer MI gene signal to MU gene predictions.
+Lightweight 2-layer GCN on the gene-gene graph (PPI + Spearman co-expression),
+trained to predict a residual correction on top of the Task 5 baseline.
+MI genes' deltas are masked to zero so the GCN only adjusts MU/MOD predictions.
 
-Unlike linear propagation (Task8a), the GNN can learn:
-  - Which MI neighbors are informative for each MU gene
-  - Non-linear transformations of MI signals
-  - Gene-specific correction patterns
-
-Architecture:
-  - Input per gene: V0 prediction (scalar) → lifted to hidden dim
-  - 2-layer GCN on gene graph (G=313 nodes, asymmetric adjacency)
-  - Output: prediction correction delta per gene
-  - Final: V0_pred + delta (residual learning)
-  - MI genes: delta forced to 0 (snap-back via loss masking)
-
-Usage on HPC:
-    cd /gpfsdata/home/renyixiang/YuanLab
-    python Task8_genePropagate/run_gene_gnn.py --dataset mg --seed 42
-    python Task8_genePropagate/run_gene_gnn.py --dataset skin --seed 42
+    python run_gene_gnn.py --dataset {mg,skin} --seed 42
 """
 
 import argparse
@@ -46,12 +30,10 @@ HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = HERE.parent
 
 
-# =============================================
 # A. Reuse loaders from run_propagation.py
-# =============================================
 
 def load_task6_lib():
-    script = PROJECT_ROOT / "Task6_wgcnaPPI" / "run_wgcna_ppi_pipeline.py"
+    script = PROJECT_ROOT / "Task5_PPI" / "run_wgcna_ppi_pipeline.py"
     source = script.read_text(encoding="utf-8")
     marker = "# 1. 数据读取与预处理"
     assert marker in source, f"Marker not found in {script}"
@@ -156,9 +138,7 @@ def compute_coexpression(expr):
     return corr.astype(np.float32)
 
 
-# =============================================
 # B. Gene graph construction
-# =============================================
 
 def build_gene_adjacency(ppi, coexpr, mi_mask, mu_mask, mod_mask,
                          ppi_weight=0.5, coexpr_weight=0.5,
@@ -200,9 +180,7 @@ def build_gene_adjacency(ppi, coexpr, mi_mask, mu_mask, mod_mask,
     return A.astype(np.float32)
 
 
-# =============================================
 # C. GeneGCN Model
-# =============================================
 
 class GeneGCN(nn.Module):
     """Lightweight 2-layer GCN on gene graph for prediction correction.
@@ -267,9 +245,7 @@ class GeneGCN(nn.Module):
         return corrected
 
 
-# =============================================
 # D. Training
-# =============================================
 
 def train_gene_gnn(model, A, pred_train, gt_train, mi_mask, mu_mask, mod_mask,
                    pred_val, gt_val,
@@ -396,9 +372,7 @@ def predict_with_gnn(model, A, pred, mi_mask, device="cpu", batch_size=4096):
     return np.concatenate(outputs, axis=0)
 
 
-# =============================================
 # E. Metrics
-# =============================================
 
 def _per_gene_pcc(pred, target, eps=1e-8):
     p = pred - pred.mean(axis=0, keepdims=True)
@@ -451,9 +425,7 @@ def print_report(rep, label):
         logger.info("  ".join(parts))
 
 
-# =============================================
 # F. Main
-# =============================================
 
 def main():
     parser = argparse.ArgumentParser(description="Task8b GeneGCN for MU gene correction")

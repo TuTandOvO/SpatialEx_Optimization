@@ -1,47 +1,20 @@
 #!/usr/bin/env python3
 """
-HumanBase 乳腺组织特异性 PPI 网络下载器
-=========================================
-从 HumanBase API 批量下载 mammary gland 组织的基因-基因功能关联网络，
-构建 G×G 的 PPI 权重矩阵并保存为本地文件。
+Download a tissue-specific gene-gene functional network from HumanBase
+(GIANT, Greene et al., Nature Genetics 2015) and save as a G×G weight matrix.
 
-数据来源：
-  HumanBase (Flatiron Institute) — GIANT tissue-specific functional networks
-  API 文档：https://humanbase.net/api/docs/
-  论文：Greene et al., Nature Genetics 2015
+  python download_ppi_network.py --xenium-h5 cell_feature_matrix.h5 \
+                                 --obs-csv cells.csv \
+                                 --tissue mammary-gland \
+                                 --output-dir ppi_data/
 
-API Endpoint:
-  GET https://humanbase.net/api/integrations/mammary-gland/network/
-  参数：entrez=<id>&...&giant_version=v1&node_size=<n>&format=json
+Tissue slugs used here: mammary-gland, skin. See https://humanbase.net/.
 
-输出文件：
-  ppi_matrix.npy           — [G, G] float32 PPI 权重矩阵
-  ppi_gene_names.npy       — [G] 基因名称（与矩阵行列对齐）
-  ppi_entrez_ids.npy       — [G] Entrez ID
-  gene_symbol_to_entrez.json — symbol→entrez 映射
-
-用法：
-  # 方式1：从 adata 自动提取基因列表
-  python download_ppi_network.py --adata /path/to/adata.h5ad
-
-  # 方式2：手动指定基因列表文件（每行一个 gene symbol）
-  python download_ppi_network.py --gene-list genes.txt
-
-  # 方式3：在 HPC 上从 Xenium 数据提取（乳腺癌 → mammary-gland）
-  python download_ppi_network.py --xenium-h5 /path/to/cell_feature_matrix.h5 --obs-csv /path/to/cells.csv
-
-  # 方式4：Skin Melanoma 数据（使用 --tissue skin）
-  python download_ppi_network.py \
-    --xenium-h5 /gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/Human_Skin_Melanoma_Base_FFPE/cell_feature_matrix.h5 \
-    --obs-csv /gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/Human_Skin_Melanoma_Base_FFPE/cells.csv \
-    --tissue skin \
-    --output-dir /gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/ppi_data_skin/
-
-HumanBase 可用的组织 slug（已验证）：
-  - mammary-gland  — 乳腺组织（用于 Breast Cancer 数据）
-  - skin           — 皮肤组织（用于 Skin Melanoma 数据）
-  - epidermis      — 表皮组织
-  - keratinocyte   — 角质形成细胞
+Outputs:
+  ppi_matrix.npy             [G, G] float32
+  ppi_gene_names.npy         [G]
+  ppi_entrez_ids.npy         [G]
+  gene_symbol_to_entrez.json
 """
 
 import os
@@ -58,9 +31,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 
-# =============================================
 # 1. Gene Symbol → Entrez ID 映射
-# =============================================
 
 def map_symbols_to_entrez_via_mygene(gene_symbols: list[str]) -> dict[str, int]:
     """使用 mygene 包将 gene symbols 映射到 Entrez ID。
@@ -198,9 +169,7 @@ def get_symbol_to_entrez(gene_symbols: list[str],
     return full_mapping
 
 
-# =============================================
 # 2. HumanBase PPI 网络下载
-# =============================================
 
 def query_humanbase_network(
     entrez_ids: list[int],
@@ -390,9 +359,7 @@ def download_ppi_matrix(
     return ppi_matrix
 
 
-# =============================================
 # 3. 主函数
-# =============================================
 
 def main():
     parser = argparse.ArgumentParser(description="Download HumanBase tissue-specific PPI network")
