@@ -181,10 +181,6 @@ Skin: Baseline PCC 0.163/0.156  -->  PPI 0.223/0.202
 
 **2. PPI 与空间信号的因果解耦 (Celcomen 风格)。** Task 5 只是把 PPI 边加进超图，模型没法分辨某个基因表达是被**邻居细胞**驱动 (inter-cellular, CCE) 还是被**细胞自身状态**驱动 (intra-cellular, SCE)。[Celcomen](https://arxiv.org/abs/2409.05804) (ICLR 2025) 把基因调控拆成这两条因果通道。把 PPI 当作独立的因果通道而不是和空间边混在一起，应该能给出更可解释、更有效的整合。
 
-**3. 用 Flow Matching / Diffusion 做生成式预测。** 同样的 H&E patch 可以对应不同的表达状态——这是个一对多 mapping，点回归只能学到条件期望，无法捕捉这种 stochasticity，这也部分解释了 MU 基因为什么 collapse 到空间常数。[STFlow](https://openreview.net/forum?id=Ossg1IbHDT) (ICML 2025 Spotlight) 用 flow matching 对整张切片建模联合分布；[Stem](https://openreview.net/forum?id=FtjLUHyZAO) (ICLR 2025) 用 conditional DDPM 做表达分布生成。这两种范式直接攻击"variance collapse"问题，比换 head 工程量大但更有原理性。
-
-**4. 用 Mixture-of-Experts decoder 处理 MI/MOD/MU 异质性。** 项目阶段一到四的所有结果都指向同一个事实：MI 和 MU 基因需要完全不同的归纳偏置，而 SpatialEx 用的是单一共享 predictor。借鉴 [scGPT-spatial](https://www.biorxiv.org/content/10.1101/2025.02.05.636714v1) (bioRxiv 2025)，可以让一个学到的 router 把每个基因路由到偏 morphology 的专家（处理 MI）或偏 context/PPI 的专家（处理 MU），不需要硬性的 tier 边界。
-
 ---
 
 ## 参考文献 (References)

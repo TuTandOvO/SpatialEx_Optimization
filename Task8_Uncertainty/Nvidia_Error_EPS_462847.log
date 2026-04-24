@@ -1,0 +1,148 @@
+/gpfsdata/home/renyixiang/miniconda3/envs/SpatialEx/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-04-22 13:44:59,647 INFO Skin H&E resolved: /gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/Human_Skin_Melanoma_Base_FFPE/Xenium_V1_hSkin_Melanoma_Base_FFPE_he_image.ome.tif
+2026-04-22 13:44:59,648 INFO Skin H&E align resolved: /gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/Human_Skin_Melanoma_Base_FFPE/Xenium_V1_hSkin_Melanoma_Base_FFPE_he_imagealignment.csv
+2026-04-22 13:44:59,695 INFO Skip (exists): /gpfsdata/home/renyixiang/YuanLab/Task9_uncertainty/eps_cache/mg_slice1.h5ad
+2026-04-22 13:44:59,725 INFO Skip (exists): /gpfsdata/home/renyixiang/YuanLab/Task9_uncertainty/eps_cache/mg_slice2.h5ad
+/gpfsdata/home/renyixiang/miniconda3/envs/SpatialEx/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-04-22 13:49:26,164 INFO Skin H&E resolved: /gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/Human_Skin_Melanoma_Base_FFPE/Xenium_V1_hSkin_Melanoma_Base_FFPE_he_image.ome.tif
+2026-04-22 13:49:26,165 INFO Skin H&E align resolved: /gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/Human_Skin_Melanoma_Base_FFPE/Xenium_V1_hSkin_Melanoma_Base_FFPE_he_imagealignment.csv
+2026-04-22 13:50:12,634 INFO Skin split: s1=(52712, 282), s2=(52712, 282)
+2026-04-22 13:52:18,662 INFO Loaded: slice1=(164000, 313), slice2=(111587, 313)
+2026-04-22 13:52:53,884 INFO Loading faiss.
+2026-04-22 13:52:54,060 INFO Successfully loaded faiss.
+2026-04-22 13:52:54,318 INFO Computing EPS: N=164000, G=313
+/gpfsdata/home/renyixiang/miniconda3/envs/eps/lib/python3.11/site-packages/legacy_api_wrap/__init__.py:88: UserWarning: `flavor='seurat_v3'` expects raw count data, but non-integers were found.
+  return fn(*args_all, **kw)
+2026-04-22 13:53:06.181 | WARNING  | expression_copilot.utils:is_rapids_ready:29 - Rapids not available, use Scanpy
+2026-04-22 13:53:07.419 | DEBUG    | expression_copilot.utils:knn_faiss:116 - Use Flat index with 164000 elements.
+2026-04-22 14:07:06.674 | INFO     | expression_copilot.model:calc_metrics_per_gene:63 - Gene metrics: 
+            EPS
+MPO   -0.042940
+PDCD1 -0.034359
+TCF15 -0.029577
+2026-04-22 14:07:06,680 INFO EPS done in 852.4s, range=[-0.043, 0.519]
+2026-04-22 14:07:06,691 INFO Computing EPS: N=111587, G=313
+/gpfsdata/home/renyixiang/miniconda3/envs/eps/lib/python3.11/site-packages/legacy_api_wrap/__init__.py:88: UserWarning: `flavor='seurat_v3'` expects raw count data, but non-integers were found.
+  return fn(*args_all, **kw)
+2026-04-22 14:07:11.598 | WARNING  | expression_copilot.utils:is_rapids_ready:29 - Rapids not available, use Scanpy
+2026-04-22 14:07:12.418 | DEBUG    | expression_copilot.utils:knn_faiss:116 - Use Flat index with 111587 elements.
+2026-04-22 14:13:37.750 | INFO     | expression_copilot.model:calc_metrics_per_gene:63 - Gene metrics: 
+               EPS
+DNAAF1   -0.030376
+NDUFA4L2 -0.021086
+CCL20    -0.016522
+2026-04-22 14:13:37,755 INFO EPS done in 391.1s, range=[-0.030, 0.506]
+2026-04-22 14:13:37,937 INFO EPS masks: MI=104 MU=104 MOD=105 (low=0.038, high=0.107)
+2026-04-22 14:13:38,447 INFO Baseline pred shapes: s1=(164000, 313), s2=(111555, 313)
+2026-04-22 14:13:38,447 INFO GT shapes: s1=(164000, 313), s2=(111587, 313)
+2026-04-22 14:13:38,447 INFO [slice2] first-N alignment: 111587 → 111555 (drop_frac=0.0287%, negligible)
+2026-04-22 14:13:39,107 INFO EPS vs baseline PCC: Spearman ρ=0.899 (p=2.18e-113)
+2026-04-22 14:13:59,206 INFO CCV: mean=1.0623 median=1.0350
+2026-04-22 14:14:12,784 INFO CCV: mean=1.1168 median=1.0604
+2026-04-22 14:14:18,148 INFO ======================================================================
+2026-04-22 14:14:18,149 INFO   dataset: mg
+2026-04-22 14:14:18,149 INFO   seed: 42
+2026-04-22 14:14:18,149 INFO   n_genes_MI: 104
+2026-04-22 14:14:18,149 INFO   n_genes_MOD: 105
+2026-04-22 14:14:18,149 INFO   n_genes_MU: 104
+2026-04-22 14:14:18,149 INFO   alpha: 0.3300
+2026-04-22 14:14:18,149 INFO   ccv_slice1_MI: 1.1133
+2026-04-22 14:14:18,149 INFO   ccv_slice1_MU: 1.0198
+2026-04-22 14:14:18,149 INFO   ccv_slice1_MOD: 1.0536
+2026-04-22 14:14:18,149 INFO   ccv_slice2_MI: 1.2243
+2026-04-22 14:14:18,149 INFO   ccv_slice2_MU: 1.0318
+2026-04-22 14:14:18,149 INFO   ccv_slice2_MOD: 1.0944
+2026-04-22 14:14:18,149 INFO   width_slice1_MI: 0.7588
+2026-04-22 14:14:18,149 INFO   width_slice1_MU: 0.1165
+2026-04-22 14:14:18,149 INFO   width_slice1_MOD: 0.3915
+2026-04-22 14:14:18,149 INFO   width_slice2_MI: 0.9071
+2026-04-22 14:14:18,149 INFO   width_slice2_MU: 0.1322
+2026-04-22 14:14:18,149 INFO   width_slice2_MOD: 0.4414
+2026-04-22 14:14:18,149 INFO   width_cross_slice_MI: 0.8419
+2026-04-22 14:14:18,149 INFO   width_cross_slice_MU: 0.1186
+2026-04-22 14:14:18,150 INFO   width_cross_slice_MOD: 0.4095
+2026-04-22 14:14:18,150 INFO   coverage_slice1_MI: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_slice1_MU: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_slice1_MOD: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_slice2_MI: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_slice2_MU: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_slice2_MOD: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_cross_slice_MI: 0.6379
+2026-04-22 14:14:18,150 INFO   coverage_cross_slice_MU: 0.6190
+2026-04-22 14:14:18,150 INFO   coverage_cross_slice_MOD: 0.6403
+2026-04-22 14:14:18,150 INFO   coverage_slice1_overall: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_slice2_overall: 0.6700
+2026-04-22 14:14:18,150 INFO   coverage_cross_slice_overall: 0.6324
+2026-04-22 14:14:18,150 INFO   spearman_rho_eps_vs_baseline_pcc: 0.8988
+2026-04-22 14:14:18,150 INFO   spearman_p: 0.0000
+2026-04-22 14:14:18,150 INFO Saved: /gpfsdata/home/renyixiang/YuanLab/Task9_uncertainty/results_v2/mg_seed42
+2026-04-22 14:15:52,509 INFO Loaded: slice1=(52712, 282), slice2=(52712, 282)
+2026-04-22 14:16:22,735 INFO Loading faiss.
+2026-04-22 14:16:22,863 INFO Successfully loaded faiss.
+2026-04-22 14:16:23,097 INFO Computing EPS: N=52712, G=282
+/gpfsdata/home/renyixiang/miniconda3/envs/eps/lib/python3.11/site-packages/legacy_api_wrap/__init__.py:88: UserWarning: `flavor='seurat_v3'` expects raw count data, but non-integers were found.
+  return fn(*args_all, **kw)
+2026-04-22 14:16:29.620 | WARNING  | expression_copilot.utils:is_rapids_ready:29 - Rapids not available, use Scanpy
+2026-04-22 14:16:30.054 | DEBUG    | expression_copilot.utils:knn_faiss:116 - Use Flat index with 52712 elements.
+2026-04-22 14:17:59.685 | INFO     | expression_copilot.model:calc_metrics_per_gene:63 - Gene metrics: 
+           EPS
+MT1A -0.030985
+AHSP -0.029415
+NMB  -0.026789
+2026-04-22 14:17:59,688 INFO EPS done in 96.6s, range=[-0.031, 0.329]
+2026-04-22 14:17:59,695 INFO Computing EPS: N=52712, G=282
+/gpfsdata/home/renyixiang/miniconda3/envs/eps/lib/python3.11/site-packages/legacy_api_wrap/__init__.py:88: UserWarning: `flavor='seurat_v3'` expects raw count data, but non-integers were found.
+  return fn(*args_all, **kw)
+2026-04-22 14:18:01.764 | WARNING  | expression_copilot.utils:is_rapids_ready:29 - Rapids not available, use Scanpy
+2026-04-22 14:18:02.186 | DEBUG    | expression_copilot.utils:knn_faiss:116 - Use Flat index with 52712 elements.
+2026-04-22 14:19:30.417 | INFO     | expression_copilot.model:calc_metrics_per_gene:63 - Gene metrics: 
+               EPS
+TNFRSF18 -0.172976
+HBE1     -0.091232
+ALAS2    -0.059449
+2026-04-22 14:19:30,421 INFO EPS done in 90.7s, range=[-0.173, 0.349]
+2026-04-22 14:19:30,489 INFO EPS masks: MI=94 MU=94 MOD=94 (low=0.038, high=0.110)
+2026-04-22 14:19:30,888 INFO Baseline pred shapes: s1=(52712, 282), s2=(52712, 282)
+2026-04-22 14:19:30,888 INFO GT shapes: s1=(52712, 282), s2=(52712, 282)
+2026-04-22 14:19:30,917 INFO EPS vs baseline PCC: Spearman ρ=0.757 (p=1.43e-53)
+2026-04-22 14:19:37,324 INFO CCV: mean=1.0546 median=1.0271
+2026-04-22 14:19:43,392 INFO CCV: mean=1.0638 median=1.0379
+2026-04-22 14:19:45,266 INFO ======================================================================
+2026-04-22 14:19:45,266 INFO   dataset: skin
+2026-04-22 14:19:45,267 INFO   seed: 42
+2026-04-22 14:19:45,267 INFO   n_genes_MI: 94
+2026-04-22 14:19:45,267 INFO   n_genes_MOD: 94
+2026-04-22 14:19:45,267 INFO   n_genes_MU: 94
+2026-04-22 14:19:45,267 INFO   alpha: 0.3300
+2026-04-22 14:19:45,267 INFO   ccv_slice1_MI: 1.0784
+2026-04-22 14:19:45,267 INFO   ccv_slice1_MU: 1.0371
+2026-04-22 14:19:45,267 INFO   ccv_slice1_MOD: 1.0481
+2026-04-22 14:19:45,267 INFO   ccv_slice2_MI: 1.0969
+2026-04-22 14:19:45,267 INFO   ccv_slice2_MU: 1.0412
+2026-04-22 14:19:45,267 INFO   ccv_slice2_MOD: 1.0531
+2026-04-22 14:19:45,267 INFO   width_slice1_MI: 0.4164
+2026-04-22 14:19:45,267 INFO   width_slice1_MU: 0.3172
+2026-04-22 14:19:45,267 INFO   width_slice1_MOD: 0.3921
+2026-04-22 14:19:45,267 INFO   width_slice2_MI: 0.6100
+2026-04-22 14:19:45,267 INFO   width_slice2_MU: 0.3631
+2026-04-22 14:19:45,267 INFO   width_slice2_MOD: 0.4351
+2026-04-22 14:19:45,267 INFO   width_cross_slice_MI: 0.4155
+2026-04-22 14:19:45,267 INFO   width_cross_slice_MU: 0.3158
+2026-04-22 14:19:45,267 INFO   width_cross_slice_MOD: 0.3929
+2026-04-22 14:19:45,267 INFO   coverage_slice1_MI: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_slice1_MU: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_slice1_MOD: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_slice2_MI: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_slice2_MU: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_slice2_MOD: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_cross_slice_MI: 0.4814
+2026-04-22 14:19:45,267 INFO   coverage_cross_slice_MU: 0.5069
+2026-04-22 14:19:45,267 INFO   coverage_cross_slice_MOD: 0.5625
+2026-04-22 14:19:45,267 INFO   coverage_slice1_overall: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_slice2_overall: 0.6700
+2026-04-22 14:19:45,267 INFO   coverage_cross_slice_overall: 0.5170
+2026-04-22 14:19:45,267 INFO   spearman_rho_eps_vs_baseline_pcc: 0.7565
+2026-04-22 14:19:45,267 INFO   spearman_p: 0.0000
+2026-04-22 14:19:45,267 INFO Saved: /gpfsdata/home/renyixiang/YuanLab/Task9_uncertainty/results_v2/skin_seed42

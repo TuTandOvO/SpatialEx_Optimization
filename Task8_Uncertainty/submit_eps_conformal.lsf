@@ -1,0 +1,54 @@
+#!/bin/bash
+#BSUB -J EPS_Conformal
+#BSUB -q gpuq
+#BSUB -n 4
+#BSUB -R "select[ngpus>0] rusage[ngpus_shared=1]"
+#BSUB -o Nvidia_output_EPS_%J.log
+#BSUB -e Nvidia_Error_EPS_%J.log
+
+echo "[$(date)] Host: $(hostname)"
+nvidia-smi || true
+
+CONDA_BASE=$(conda info --base 2>/dev/null || echo "$HOME/miniconda3")
+source "$CONDA_BASE/etc/profile.d/conda.sh"
+
+WORKDIR=/gpfsdata/home/renyixiang/YuanLab/Task9_uncertainty
+CACHE_DIR=/gpfsdata/home/renyixiang/YuanLab/Task9_uncertainty/eps_cache
+
+cd $WORKDIR
+
+# ---- Task 5 v0 output locations ----
+V0_DIR_MG=/gpfsdata/home/renyixiang/YuanLab/data/MG_Xenium/SpatialEx_results_wgcna_ppi_MG/2_spatial_ppi
+V0_DIR_SKIN=/gpfsdata/home/renyixiang/YuanLab/data/Skin_Xenium/SpatialEx_results_wgcna_ppi_skin/2_spatial_ppi
+
+# ===== Stage 1 — prep .h5ad in SpatialEx env =====
+echo ""
+echo "============================================================"
+echo "[$(date)] Stage 1 — prep .h5ad (SpatialEx env)"
+echo "============================================================"
+conda run -n SpatialEx --no-capture-output python -u prep_adata_for_eps.py \
+    --dataset mg --out_dir $CACHE_DIR || { echo "MG prep failed"; exit 1; }
+conda run -n SpatialEx --no-capture-output python -u prep_adata_for_eps.py \
+    --dataset skin --out_dir $CACHE_DIR || { echo "Skin prep failed"; exit 1; }
+
+# ===== Stage 2 — EPS + Conformal in eps env =====
+echo ""
+echo "============================================================"
+echo "[$(date)] Stage 2 — EPS + Conformal (eps env)"
+echo "============================================================"
+conda run -n eps --no-capture-output python -u run_eps_conformal.py \
+    --dataset mg --seed 42 \
+    --cache_dir $CACHE_DIR \
+    --v0_dir $V0_DIR_MG \
+    --out_dir $WORKDIR/results_v2 || { echo "MG stage 2 failed"; exit 1; }
+
+conda run -n eps --no-capture-output python -u run_eps_conformal.py \
+    --dataset skin --seed 42 \
+    --cache_dir $CACHE_DIR \
+    --v0_dir $V0_DIR_SKIN \
+    --out_dir $WORKDIR/results_v2 || { echo "Skin stage 2 failed"; exit 1; }
+
+RC=$?
+echo ""
+echo "[$(date)] Finished with exit code $RC"
+exit $RC
